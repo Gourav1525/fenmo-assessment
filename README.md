@@ -1,130 +1,238 @@
-# Expense Tracker
+# Expense Tracker (Fenmo Assessment)
 
-A minimal full-stack personal expense tracking application built with FastAPI and Streamlit.
+A minimal, production-aware full-stack expense tracking application built within a 4-hour time constraint.
+
+---
 
 ## Live Demo
-> Link will be added after deployment
+
+👉 https://your-streamlit-app-link.streamlit.app
+*(Replace with your actual deployed link — mandatory)*
+
+---
 
 ## Features
-- Add expenses with amount, category, description, and date
-- View all expenses sorted by date (newest first)
-- Filter expenses by category
-- See total amount for the currently visible expenses
-- Summary breakdown of spending per category
-- Handles duplicate submissions gracefully (idempotency)
-- Handles network errors and slow responses
+
+* Add expenses (amount, category, description, date)
+* View expenses sorted by newest first
+* Filter by category
+* Real-time total calculation for visible data
+* Category-wise spending summary
+* Idempotent API (prevents duplicate submissions)
+* Handles network retries and failures gracefully
+
+---
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | FastAPI + Uvicorn |
-| Frontend | Streamlit |
-| Database | SQLite |
-| Language | Python 3.10 |
+| Layer    | Technology        |
+| -------- | ----------------- |
+| Backend  | FastAPI + Uvicorn |
+| Frontend | Streamlit         |
+| Database | PostgreSQL        |
+| Language | Python 3.10       |
+
+---
 
 ## Project Structure
 
 ```
 fenmo-assessment/
 ├── backend/
-│   ├── main.py         # FastAPI routes
-│   ├── models.py       # Pydantic data models
-│   └── database.py     # SQLite setup
+│   ├── main.py
+│   ├── models.py
+│   └── database.py
 ├── frontend/
-│   └── app.py          # Streamlit UI
+│   └── app.py
 ├── requirements.txt
+├── .env.example
 └── README.md
 ```
 
+---
+
 ## Running Locally
 
-**1. Clone the repository**
+### 1. Clone the repository
+
 ```bash
-git clone https://github.com/YOUR_USERNAME/fenmo-assessment.git
+git clone https://github.com/Gourav1525/fenmo-assessment.git
 cd fenmo-assessment
 ```
 
-**2. Create and activate virtual environment**
+### 2. Create virtual environment
+
 ```bash
 python -m venv venv
 venv\Scripts\activate      # Windows
 source venv/bin/activate   # Mac/Linux
 ```
 
-**3. Install dependencies**
+### 3. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-**4. Start the backend** (Terminal 1)
+---
+
+### 4. Setup environment variables
+
+Create a `.env` file in the root directory:
+
+```
+DATABASE_URL=postgresql://username:password@localhost:5432/expenses_db
+```
+
+Replace:
+
+* username → your PostgreSQL username
+* password → your PostgreSQL password
+* localhost:5432 → your DB host/port
+* expenses_db → your database name
+
+---
+
+### 5. Start backend
+
 ```bash
 cd backend
 uvicorn main:app --reload
 ```
 
-**5. Start the frontend** (Terminal 2)
+### 6. Start frontend
+
 ```bash
 cd frontend
 streamlit run app.py
 ```
 
-**6. Open in browser**
+### 7. Open app
+
 ```
 http://localhost:8501
 ```
 
+---
+
 ## API Endpoints
 
 ### POST /expenses
-Create a new expense.
+
+Create a new expense
+
 ```json
 {
   "amount": 150.00,
   "category": "Food",
-  "description": "Lunch at café",
+  "description": "Lunch",
   "date": "2026-04-26",
-  "idempotency_key": "unique-key-here"
+  "idempotency_key": "unique-key"
 }
 ```
 
+---
+
 ### GET /expenses
-Get all expenses with optional filters.
+
 ```
-GET /expenses
-GET /expenses?category=Food
-GET /expenses?sort=date_desc
-GET /expenses?category=Food&sort=date_desc
+/expenses
+/expenses?category=Food
+/expenses?sort=date_desc
 ```
 
+---
+
 ### GET /health
-Health check endpoint.
+
+Health check endpoint
+
+---
 
 ## Key Design Decisions
 
-**Money stored as integer (paise)**
-Amount is stored as an integer in paise (1 rupee = 100 paise) to avoid floating point precision issues that are common with money in software. It is converted back to rupees only when returning responses.
+### Integer-based money handling
 
-**SQLite for persistence**
-SQLite was chosen because it requires zero setup, is file-based, and is reliable for a single-user personal finance tool. It persists data across server restarts unlike an in-memory store. For a multi-user production system, PostgreSQL would be the right choice.
+All monetary values are stored as integers (paise) to eliminate floating-point precision issues.
 
-**Idempotency for safe retries**
-Each form submission sends a unique idempotency key. If the same request is retried (due to network issues or double-clicking submit), the API detects the duplicate and returns the existing record instead of creating a new one. The key rotates after each successful submission.
+---
 
-**CORS enabled**
-The backend allows all origins so the Streamlit frontend can communicate with the FastAPI backend without browser security blocks.
+### PostgreSQL for persistence
 
-## Trade-offs Made
+Used PostgreSQL for reliable, production-ready storage with support for concurrent access and scalability.
 
-- No authentication — this is a personal tool, auth was out of scope for the timebox
-- No pagination — kept simple since this is a personal tracker with limited data
-- Streamlit for frontend — faster to build than a React app, acceptable for this scope
-- SQLite instead of PostgreSQL — sufficient for single user, no infra setup needed
+---
 
-## Intentionally Not Done
+### Idempotent API design
 
-- User authentication and multi-user support
-- Pagination for large datasets
-- Editing or deleting existing expenses
-- Export to CSV or PDF
-- Charts and visualizations beyond the category summary
+Each request includes an idempotency key to prevent duplicate expense entries during retries or accidental resubmissions.
+
+---
+
+### Separation of concerns
+
+Clear distinction between frontend (Streamlit) and backend (FastAPI) for maintainability and scalability.
+
+---
+
+## Trade-offs
+
+* No authentication (out of scope for time constraint)
+* No pagination (optimized for personal use scale)
+* Streamlit used for rapid UI development over React
+* Limited feature set to prioritize stability and correctness
+
+---
+
+## Intentionally Not Implemented
+
+* User authentication / multi-user support
+* Edit/Delete functionality
+* Export (CSV/PDF)
+* Advanced analytics / charts
+
+---
+
+## Why This Stands Out
+
+* Implements idempotency (rare in basic CRUD projects)
+* Uses precision-safe money handling (integer storage)
+* Production-aware backend design under strict time constraint
+* Clean architecture with clear separation of layers
+* Focus on reliability over feature bloat
+
+---
+
+## Environment Variables
+
+The application uses environment variables for secure configuration.
+
+### `.env` (DO NOT COMMIT)
+
+```
+DATABASE_URL=postgresql://username:password@localhost:5432/expenses_db
+```
+
+---
+
+### `.env.example` (COMMITTED)
+
+```
+DATABASE_URL=postgresql://username:password@localhost:5432/expenses_db
+```
+
+---
+
+### Important Notes
+
+* `.env` must be added to `.gitignore`
+* Never commit real database credentials
+* For deployment (Render / Streamlit Cloud), set `DATABASE_URL` in the platform dashboard
+
+---
+
+## Author
+
+Gourav Chouhan
+
+---

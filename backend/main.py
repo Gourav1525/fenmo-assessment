@@ -17,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 def startup():
     init_db()
@@ -24,9 +25,13 @@ def startup():
 
 @app.post("/expenses", response_model=ExpenseResponse, status_code=201)
 def create_expense(expense: ExpenseCreate):
+    if expense.amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be positive")
+
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
+    # Idempotency check
     if expense.idempotency_key:
         cursor.execute(
             "SELECT * FROM expenses WHERE idempotency_key = %s",
@@ -66,9 +71,9 @@ def create_expense(expense: ExpenseCreate):
             ),
         )
         conn.commit()
-    except Exception as e:
+    except Exception:
         conn.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
     finally:
         cursor.close()
         conn.close()
@@ -98,10 +103,15 @@ def get_expenses(
         query += " AND LOWER(category) = LOWER(%s)"
         params.append(category)
 
-    query += " ORDER BY date DESC, created_at DESC"
+    # Sorting fix
+    if sort == "date_asc":
+        query += " ORDER BY date ASC, created_at ASC"
+    else:
+        query += " ORDER BY date DESC, created_at DESC"
 
     cursor.execute(query, params)
     rows = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
