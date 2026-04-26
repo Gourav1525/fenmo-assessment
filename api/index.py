@@ -5,8 +5,8 @@ import uuid
 import psycopg2.extras
 from datetime import datetime, timezone
 
-from database import init_db, get_connection
-from models import ExpenseCreate, ExpenseResponse
+from .database import init_db, get_connection
+from .models import ExpenseCreate, ExpenseResponse
 
 app = FastAPI(title="Expense Tracker API")
 

@@ -23,7 +23,24 @@ A minimal, production-aware full-stack expense tracking application built within
 
 ---
 
-## Tech Stack
+## Deployment
+
+### Backend (Vercel Serverless)
+
+1. Set up a PostgreSQL database (e.g., on Supabase, Neon, or Vercel Postgres).
+2. Set the `DATABASE_URL` environment variable in Vercel.
+3. Deploy to Vercel: The `api/` directory contains the serverless backend.
+
+API endpoints will be available at `https://your-app.vercel.app/api/expenses`, etc.
+
+### Frontend (Streamlit)
+
+Deploy to Streamlit Cloud or another platform. Update `API_URL` in `frontend/app.py` to point to the Vercel backend URL.
+
+For local development:
+- Run backend: `python -m uvicorn api.index:app --reload`
+- Run frontend: `streamlit run frontend/app.py`
+- Or run both: `.\run.ps1`
 
 | Layer    | Technology        |
 | -------- | ----------------- |
@@ -38,13 +55,14 @@ A minimal, production-aware full-stack expense tracking application built within
 
 ```
 fenmo-assessment/
-├── backend/
-│   ├── main.py
+├── api/
+│   ├── index.py
 │   ├── models.py
 │   └── database.py
 ├── frontend/
 │   └── app.py
 ├── requirements.txt
+├── vercel.json
 ├── .env.example
 └── README.md
 ```
