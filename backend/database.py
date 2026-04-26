@@ -1,12 +1,15 @@
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import os
+from dotenv import load_dotenv
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "expenses.db")
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 
@@ -16,7 +19,7 @@ def init_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS expenses (
             id TEXT PRIMARY KEY,
-            amount INTEGER NOT NULL,
+            amount BIGINT NOT NULL,
             category TEXT NOT NULL,
             description TEXT NOT NULL,
             date TEXT NOT NULL,
@@ -25,4 +28,5 @@ def init_db():
         )
     """)
     conn.commit()
+    cursor.close()
     conn.close()
