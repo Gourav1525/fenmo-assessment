@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { pool, initDb } = require('./database');
 const { validateExpenseCreate } = require('./models');
@@ -7,6 +8,7 @@ const { validateExpenseCreate } = require('./models');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '..')));
 
 // Initialize database on startup
 initDb().catch(console.error);

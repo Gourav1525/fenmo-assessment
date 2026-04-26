@@ -1,13 +1,12 @@
 # Expense Tracker (Fenmo Assessment)
 
-A minimal, production-aware full-stack expense tracking application built with Node.js and deployed on Vercel.
+A minimal full-stack expense tracker built with Node.js, Express, and PostgreSQL, deployed on Vercel.
 
 ---
 
 ## Live Demo
 
-👉 https://your-vercel-app.vercel.app
-*(Replace with your actual deployed link — mandatory)*
+`https://your-app.vercel.app`
 
 ---
 
@@ -16,35 +15,58 @@ A minimal, production-aware full-stack expense tracking application built with N
 * Add expenses (amount, category, description, date)
 * View expenses sorted by newest first
 * Filter by category
-* Real-time total calculation for visible data
-* Category-wise spending summary
-* Idempotent API (prevents duplicate submissions)
-* Handles network retries and failures gracefully
+* Total visible spending calculation
+* Category summary breakdown
+* Idempotent API to prevent duplicate submissions
+* PostgreSQL persistence using Neon
 
 ---
 
 ## Deployment
 
-### Backend & Frontend (Vercel)
+### Vercel
 
-1. Set up a PostgreSQL database (e.g., on Supabase, Neon, or Vercel Postgres).
-2. Set the `DATABASE_URL` environment variable in Vercel.
-3. Deploy to Vercel: The entire project deploys as a static site with serverless API functions.
+1. Set the `DATABASE_URL` environment variable in your Vercel project.
+2. Import the repository to Vercel.
+3. Deploy the project.
 
-API endpoints will be available at `https://your-app.vercel.app/api/expenses`, etc.
-Frontend will be served from the root URL.
+The API will be available at `https://your-app.vercel.app/api/expenses` and the frontend will be served from the root URL.
 
-For local development:
-- Install dependencies: `npm install`
-- Run development server: `npm run dev`
-- Open `http://localhost:3000` in your browser
+---
 
-| Layer    | Technology        |
-| -------- | ----------------- |
-| Backend  | Express.js        |
-| Frontend | Vanilla HTML/JS   |
-| Database | PostgreSQL        |
-| Runtime  | Node.js           |
+## Local Development
+
+### 1. Install Node.js
+
+Download and install Node.js from https://nodejs.org.
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Run the app locally
+
+```bash
+npm run dev
+```
+
+### 4. Open in browser
+
+```text
+http://localhost:3000
+```
+
+---
+
+## Environment
+
+Create a `.env` file in the project root with:
+
+```env
+DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require
+```
 
 ---
 
@@ -53,86 +75,21 @@ For local development:
 ```
 fenmo-assessment/
 ├── api/
-│   ├── index.py
-│   ├── models.py
-│   └── database.py
-├── frontend/
-│   └── app.py
-├── requirements.txt
+│   ├── index.js
+│   ├── database.js
+│   └── models.js
+├── index.html
+├── package.json
 ├── vercel.json
-├── .env.example
+├── .env
 └── README.md
-```
-
----
-
-## Running Locally
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Gourav1525/fenmo-assessment.git
-cd fenmo-assessment
-```
-
-### 2. Create virtual environment
-
-```bash
-python -m venv venv
-venv\Scripts\activate      # Windows
-source venv/bin/activate   # Mac/Linux
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-### 4. Setup environment variables
-
-Create a `.env` file in the root directory:
-
-```
-DATABASE_URL=postgresql://username:password@localhost:5432/expenses_db
-```
-
-Replace:
-
-* username → your PostgreSQL username
-* password → your PostgreSQL password
-* localhost:5432 → your DB host/port
-* expenses_db → your database name
-
----
-
-### 5. Start backend
-
-```bash
-cd backend
-uvicorn main:app --reload
-```
-
-### 6. Start frontend
-
-```bash
-cd frontend
-streamlit run app.py
-```
-
-### 7. Open app
-
-```
-http://localhost:8501
 ```
 
 ---
 
 ## API Endpoints
 
-### POST /expenses
+### POST /api/expenses
 
 Create a new expense
 
@@ -146,58 +103,27 @@ Create a new expense
 }
 ```
 
----
+### GET /api/expenses
 
-### GET /expenses
+Query examples:
 
 ```
-/expenses
-/expenses?category=Food
-/expenses?sort=date_desc
+/api/expenses
+/api/expenses?category=Food
+/api/expenses?sort=date_desc
 ```
 
----
-
-### GET /health
+### GET /api/health
 
 Health check endpoint
 
 ---
 
-## Key Design Decisions
+## Notes
 
-### Integer-based money handling
+- `.env` is ignored in git.
+- On Vercel, static frontend files are served from the project root and API routes are handled under `/api`.
 
-All monetary values are stored as integers (paise) to eliminate floating-point precision issues.
-
----
-
-### PostgreSQL for persistence
-
-Used PostgreSQL for reliable, production-ready storage with support for concurrent access and scalability.
-
----
-
-### Idempotent API design
-
-Each request includes an idempotency key to prevent duplicate expense entries during retries or accidental resubmissions.
-
----
-
-### Separation of concerns
-
-Clear distinction between frontend (Streamlit) and backend (FastAPI) for maintainability and scalability.
-
----
-
-## Trade-offs
-
-* No authentication (out of scope for time constraint)
-* No pagination (optimized for personal use scale)
-* Streamlit used for rapid UI development over React
-* Limited feature set to prioritize stability and correctness
-
----
 
 ## Intentionally Not Implemented
 
