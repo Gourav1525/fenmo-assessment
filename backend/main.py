@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 import uuid
+import psycopg2.extras
 from datetime import datetime, timezone
-from decimal import Decimal
 
 from database import init_db, get_connection
 from models import ExpenseCreate, ExpenseResponse
@@ -25,16 +25,16 @@ def startup():
 @app.post("/expenses", response_model=ExpenseResponse, status_code=201)
 def create_expense(expense: ExpenseCreate):
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    # Idempotency check — prevent duplicate submissions
     if expense.idempotency_key:
         cursor.execute(
-            "SELECT * FROM expenses WHERE idempotency_key = ?",
+            "SELECT * FROM expenses WHERE idempotency_key = %s",
             (expense.idempotency_key,)
         )
         existing = cursor.fetchone()
         if existing:
+            cursor.close()
             conn.close()
             return ExpenseResponse(
                 id=existing["id"],
@@ -45,7 +45,6 @@ def create_expense(expense: ExpenseCreate):
                 created_at=existing["created_at"],
             )
 
-    # Store amount in paise (integer) to avoid float precision issues
     amount_in_paise = int(expense.amount * 100)
     expense_id = str(uuid.uuid4())
     created_at = datetime.now(timezone.utc).isoformat()
@@ -54,7 +53,7 @@ def create_expense(expense: ExpenseCreate):
         cursor.execute(
             """
             INSERT INTO expenses (id, amount, category, description, date, created_at, idempotency_key)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 expense_id,
@@ -71,6 +70,7 @@ def create_expense(expense: ExpenseCreate):
         conn.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     finally:
+        cursor.close()
         conn.close()
 
     return ExpenseResponse(
@@ -89,22 +89,20 @@ def get_expenses(
     sort: Optional[str] = Query(None),
 ):
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     query = "SELECT * FROM expenses WHERE 1=1"
     params = []
 
     if category:
-        query += " AND LOWER(category) = LOWER(?)"
+        query += " AND LOWER(category) = LOWER(%s)"
         params.append(category)
 
-    if sort == "date_desc":
-        query += " ORDER BY date DESC, created_at DESC"
-    else:
-        query += " ORDER BY date DESC, created_at DESC"
+    query += " ORDER BY date DESC, created_at DESC"
 
     cursor.execute(query, params)
     rows = cursor.fetchall()
+    cursor.close()
     conn.close()
 
     return [
