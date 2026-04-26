@@ -1,12 +1,12 @@
 # Expense Tracker (Fenmo Assessment)
 
-A minimal, production-aware full-stack expense tracking application built within a 4-hour time constraint.
+A minimal, production-aware full-stack expense tracking application built with Node.js and deployed on Vercel.
 
 ---
 
 ## Live Demo
 
-👉 https://your-streamlit-app-link.streamlit.app
+👉 https://your-vercel-app.vercel.app
 *(Replace with your actual deployed link — mandatory)*
 
 ---
@@ -25,29 +25,26 @@ A minimal, production-aware full-stack expense tracking application built within
 
 ## Deployment
 
-### Backend (Vercel Serverless)
+### Backend & Frontend (Vercel)
 
 1. Set up a PostgreSQL database (e.g., on Supabase, Neon, or Vercel Postgres).
 2. Set the `DATABASE_URL` environment variable in Vercel.
-3. Deploy to Vercel: The `api/` directory contains the serverless backend.
+3. Deploy to Vercel: The entire project deploys as a static site with serverless API functions.
 
 API endpoints will be available at `https://your-app.vercel.app/api/expenses`, etc.
-
-### Frontend (Streamlit)
-
-Deploy to Streamlit Cloud or another platform. Update `API_URL` in `frontend/app.py` to point to the Vercel backend URL.
+Frontend will be served from the root URL.
 
 For local development:
-- Run backend: `python -m uvicorn api.index:app --reload`
-- Run frontend: `streamlit run frontend/app.py`
-- Or run both: `.\run.ps1`
+- Install dependencies: `npm install`
+- Run development server: `npm run dev`
+- Open `http://localhost:3000` in your browser
 
 | Layer    | Technology        |
 | -------- | ----------------- |
-| Backend  | FastAPI + Uvicorn |
-| Frontend | Streamlit         |
+| Backend  | Express.js        |
+| Frontend | Vanilla HTML/JS   |
 | Database | PostgreSQL        |
-| Language | Python 3.10       |
+| Runtime  | Node.js           |
 
 ---
 
