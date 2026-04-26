@@ -3,7 +3,7 @@ import requests
 import uuid
 from datetime import date
 
-API_URL = "POSTGRES_URL=postgresql://neondb_owner:npg_3KL2qBwHhxcG@ep-soft-king-amsjx93y-pooler.c-5.us-east-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require"
+API_URL = "https://your-project-name.vercel.app"  # Replace with your Vercel deployment URL
 
 st.set_page_config(page_title="Expense Tracker", page_icon="💰", layout="wide")
 
